@@ -31,7 +31,7 @@ namespace ldmx {
 
 	virtual ~SimpleCSVTableProvider();
 
-	virtual std::pair<const ConditionsObject*,ConditionsIOV> getCondition(const std::string& condition_name, const EventHeader& context);
+	virtual std::pair<const ConditionsObject*,ConditionsIOV> getCondition(const std::string& condition_name, const EventHeader& context, const RunHeader& run_context);
 
         static void runTest(const std::string& host, const std::string& path, std::string& ss);
 	

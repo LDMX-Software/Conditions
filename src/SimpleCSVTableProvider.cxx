@@ -176,7 +176,7 @@ namespace ldmx {
 	return retval;
     }
 
-    std::pair<const ConditionsObject*,ConditionsIOV> SimpleCSVTableProvider::getCondition(const std::string& condition_name, const EventHeader& context) {
+    std::pair<const ConditionsObject*,ConditionsIOV> SimpleCSVTableProvider::getCondition(const std::string& condition_name, const EventHeader& context, const RunHeader& run_context) {
 	// put the condition tag into the environment for wordexp to use
 	setenv("LDMX_CONDITION_TAG",getTagName().c_str(),1);
 

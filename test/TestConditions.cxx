@@ -3,6 +3,9 @@
 #include "Conditions/SimpleTableCondition.h"
 #include "Conditions/SimpleTableStreamers.h"
 #include "Conditions/SimpleCSVTableProvider.h"
+#include "Framework/Process.h"
+#include "Event/EventHeader.h"
+#include "Event/RunHeader.h"
 #include "Framework/ConfigurePython.h"
 #include "DetDescr/EcalID.h"
 #include "DetDescr/HcalID.h"
@@ -159,10 +162,9 @@ namespace ldmx {
 
                 ldmx::ConfigurePython cp("/tmp/test_cond.py",0,0);
                 ldmx::ProcessHandle hp=cp.makeProcess();
-                EventHeader cxt;
 
-                const DoubleTableCondition& fTable1=hp->getConditions().getCondition<DoubleTableCondition>("test_table_file1",cxt);
-                const DoubleTableCondition& fTable2=hp->getConditions().getCondition<DoubleTableCondition>("test_table_file2",cxt);
+                const DoubleTableCondition& fTable1=hp->getConditions().getCondition<DoubleTableCondition>("test_table_file1");
+                const DoubleTableCondition& fTable2=hp->getConditions().getCondition<DoubleTableCondition>("test_table_file2");
                 matchesAll(dtable,fTable1);
                 matchesAll(dtable,fTable2);
             }
@@ -176,9 +178,8 @@ namespace ldmx {
 
                 ldmx::ConfigurePython cp("/tmp/test_cond.py",0,0);
                 ldmx::ProcessHandle hp=cp.makeProcess();
-                EventHeader cxt;
 
-                const IntegerTableCondition& httpTable=hp->getConditions().getCondition<IntegerTableCondition>("test_table_http",cxt);
+                const IntegerTableCondition& httpTable=hp->getConditions().getCondition<IntegerTableCondition>("test_table_http");
                 matchesAll(httpTable,itable);
             }
         }
