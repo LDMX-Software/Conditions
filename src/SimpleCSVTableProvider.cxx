@@ -25,8 +25,28 @@ namespace ldmx {
 		item.iov_=ConditionsIOV(firstRun,lastRun,isData,isMC);
 		item.url_=aprov.getParameter<std::string>("URL");
 		std::string dtype=aprov.getParameter<std::string>("dataType");
-		if (dtype=="int" || dtype=="integer") item.objectType_=SimpleCSVTableProvider::Item::OBJ_int;
-		if (dtype=="double" || dtype=="float") item.objectType_=SimpleCSVTableProvider::Item::OBJ_double;
+		if (dtype=="int" || dtype=="integer") {
+		    item.objectType_=SimpleCSVTableProvider::Item::OBJ_int;
+		    if (aprov.exists("values")) {
+			item.ivalues_=aprov.getParameter<std::vector<int>>("values");
+			if (item.ivalues_.size()!=item.columns_.size()) {
+			    EXCEPTION_RAISE("ConditionsException","Mismatch in values vector ("+std::to_string(item.ivalues_.size())+
+					    ") and columns vector ("+std::to_string(item.columns_.size())+") in "+item.objectName_);
+			    
+			}
+		    }
+		}
+		if (dtype=="double" || dtype=="float") {
+		    item.objectType_=SimpleCSVTableProvider::Item::OBJ_double;
+		    if (aprov.exists("values")) {
+			item.dvalues_=aprov.getParameter<std::vector<double>>("values");
+			if (item.dvalues_.size()!=item.columns_.size()) {
+			    EXCEPTION_RAISE("ConditionsException","Mismatch in values vector ("+std::to_string(item.dvalues_.size())+
+					    ") and columns vector ("+std::to_string(item.columns_.size())+") in "+item.objectName_);
+			    
+			}
+		    }
+		}
 
 		// here we check for overlaps
 	
@@ -215,7 +235,20 @@ namespace ldmx {
 			ldmx::utility::SimpleTableStreamerCSV::load(*table,fs);
 			return std::pair<const ConditionsObject*,ConditionsIOV>(table,tabledef.iov_);
 		    }
-		}			
+		} else if (expurl=="python:") {
+		    // here we just copy values...
+		    if (tabledef.objectType_==Item::OBJ_int) {
+			IntegerTableCondition* table=new IntegerTableCondition(tabledef.objectName_,tabledef.columns_);
+			table->setIdMask(0); // all ids are the same...
+			table->add(0,tabledef.ivalues_);
+			return std::pair<const ConditionsObject*,ConditionsIOV>(table,tabledef.iov_);
+		    } else if (tabledef.objectType_==Item::OBJ_double) {
+			DoubleTableCondition* table=new DoubleTableCondition(tabledef.objectName_,tabledef.columns_);
+			table->setIdMask(0); // all ids are the same...
+			table->add(0,tabledef.dvalues_);
+			return std::pair<const ConditionsObject*,ConditionsIOV>(table,tabledef.iov_);
+		    }
+		}
 	    }
 	}
 	return std::pair<const ConditionsObject*,ConditionsIOV>(0,ConditionsIOV());

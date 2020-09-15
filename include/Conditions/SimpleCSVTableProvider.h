@@ -15,11 +15,15 @@ namespace ldmx {
      *  CSV files.
      *
      * Configuration via Python uses a parameter "provides" which is a list of elements each of which must contain
-     * "name","dataType", "columns", and "URL".  The parameter set _may_ contain "firstRun", "lastRun", and "runType".
-     * "DataType may be "int" or "double".  The "columns" parameter is the list of names of data columns to be read out.
+     * "name","dataType", "columns", and "URL".  
+     * The parameter set _may_ contain "firstRun", "lastRun", "runType", and "values".
+     * "DataType may be "int" or "double".  
+     * The "columns" parameter is the list of names of data columns to be read out.
      * If "firstRun" is not provided, -1 is assumed.  If "lastRun" is not provided, -1 is assumed.
      * The parameter "runType" could have the value "data", "MC", or "any".
      * If "runType" is not provided, "any" is assumed.
+     * The parameter "values" is only used when the URL is "python:".  In this case, the value for each
+     * column will be taken from the values array and the configuration is expected to be independend of id.
      * 
      * In any URL, envrironment variables in the format ${VARNAME} will be expanded.  Also, the variable ${LDMX_CONDITION_TAG} will be replaced with the 
      * tagname provided in the constructor.
@@ -43,6 +47,8 @@ namespace ldmx {
 	    ConditionsIOV iov_;
 	    std::string url_;
 	    std::vector<std::string> columns_;
+	    std::vector<int> ivalues_;
+	    std::vector<double> dvalues_;
 	};
 	std::vector<Item> items_;
 
