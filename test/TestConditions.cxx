@@ -1,5 +1,5 @@
 #include "Framework/catch.hpp" //for TEST_CASE, REQUIRE, and other Catch2 macros
-
+#include "Event/EventHeader.h"
 #include "Conditions/SimpleTableCondition.h"
 #include "Conditions/SimpleTableStreamers.h"
 #include "Conditions/SimpleCSVTableProvider.h"
