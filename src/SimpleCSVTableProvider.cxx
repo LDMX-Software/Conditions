@@ -1,7 +1,10 @@
 #include "Conditions/SimpleCSVTableProvider.h"
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
+//#include <boost/asio/ssl.hpp>
 #include <fstream>
 #include "Conditions/SimpleTableStreamers.h"
+
 
 DECLARE_CONDITIONS_PROVIDER_NS(ldmx,SimpleCSVTableProvider);
 
@@ -58,10 +61,17 @@ SimpleCSVTableProvider::SimpleCSVTableProvider(const std::string& name, const st
   }
 }
 
+static void https_stream(const std::string& url, std::string& strbuf, int depth);
+
 static void httpstream(const std::string& url, std::string& strbuf, int depth=0) {
   using boost::asio::ip::tcp;
   boost::asio::io_service io_service;
 
+  if (url.find("https://")!=std::string::npos) {
+    https_stream(url,strbuf,depth);
+    return;
+  }
+  
   int locslash=url.find("//");
   std::string hostname=url.substr(locslash+2,url.find("/",locslash+2)-locslash-2);
 	
@@ -71,7 +81,6 @@ static void httpstream(const std::string& url, std::string& strbuf, int depth=0)
     tcp::resolver resolver(io_service);
     tcp::resolver::query query(hostname, "http");
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-	    
     // Try each endpoint until we successfully establish a connection.
     boost::asio::connect(socket, endpoint_iterator);
   } catch (...) {
@@ -164,6 +173,28 @@ static void httpstream(const std::string& url, std::string& strbuf, int depth=0)
   //	strbuf=build.str();
 }
 
+#include <sys/wait.h>
+// horrible hack using wget
+static void https_stream(const std::string& url, std::string& strbuf, int depth=0) {
+   static int istream=0;
+   char fname[250];
+   snprintf(fname,250,"/tmp/https_stream_%d_%d.csv ",getpid(),istream++);
+   pid_t apid=fork();
+   if (apid==0) { // child
+     execl("/usr/bin/wget","wget","-q","-O",fname,url.c_str(),(char*)0);
+   } else {
+     int wstatus;
+     int wrv=waitpid(apid,&wstatus,0);
+   }
+
+   std::ifstream ib(fname);
+   std::ostringstream ss;
+   ss << ib.rdbuf();
+   strbuf = ss.str();
+   std::remove(fname);
+}
+
+
 std::string SimpleCSVTableProvider::expandEnv(const std::string& s) const {
   std::string retval;
   std::string::size_type j=0;
@@ -197,7 +228,7 @@ std::pair<const ConditionsObject*,ConditionsIOV> SimpleCSVTableProvider::getCond
     if (tabledef.iov_.validForEvent(context)) {
       std::string expurl=expandEnv(tabledef.url_);
       //		std::cout << "url:" <<  expurl << " from " << tabledef.url_ << std::endl;
-      if (expurl.find("http://")!=std::string::npos) {
+      if (expurl.find("http://")!=std::string::npos || expurl.find("https://")!=std::string::npos) {
         std::string buffer;
         httpstream(expurl,buffer);
         //std::cout <<buffer <<std::endl;
