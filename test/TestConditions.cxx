@@ -86,7 +86,7 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
     vals.push_back(log(key));
     dtable.add(id.raw(), vals);
   }
-
+  
   SECTION("Testing simple table construction") {
     REQUIRE(itable.getRowCount() == 10);
 
@@ -112,7 +112,31 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
     ldmx::EcalID id2(1, 1, 60);
 
     CHECK(itable.getByName(id2.raw(), "Q") == 30);
+
+
+    const char* expected="[ TableCondition: ITable\n"
+      "  DetID,id:\"A\",id:\"Q\",id:\"V\"\n"
+      "  335679498,20,5,100\n"
+      "  335679508,40,10,400\n"
+      "  335679518,60,15,900\n"
+      "  335679528,80,20,1600\n"
+      "  335679538,100,25,2500\n"
+      "  335679548,120,30,3600\n"
+      "  335679558,140,35,4900\n"
+      "  335679568,160,40,6400\n"
+      "  335679578,180,45,8100\n"
+      "  335679588,200,50,10000\n"
+      "]";
+    std::stringstream ss;
+    ss <<itable;
+    std::string image = ss.str();
+    CHECK(image == expected);    
+
+
   }
+
+
+  
   SECTION("Testing CSV IO") {
     std::stringstream ss;
     conditions::utility::SimpleTableStreamerCSV::store(itable, ss, true);
@@ -167,7 +191,7 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
 
   SECTION("Testing python static") {
     const char* cfg =
-        "#!/usr/bin/python\n\nimport sys\n\nfrom LDMX.Framework import "
+        "#!/usr/bin/python3\n\nimport sys\n\nfrom LDMX.Framework import "
         "ldmxcfg\nfrom LDMX.Conditions import "
         "SimpleCSVTableProvider\n\np=ldmxcfg.Process('test')\np.testMode="
         "True\ncolumns=['A','B','C']\ncop=SimpleCSVTableProvider."
@@ -202,7 +226,7 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
     //	std::cout << "Step 1" << std::endl << ss.str();
 
     const char* cfg =
-        "#!/usr/bin/python\n\nimport sys\n\nfrom LDMX.Framework import "
+        "#!/usr/bin/python3\n\nimport sys\n\nfrom LDMX.Framework import "
         "ldmxcfg\nfrom LDMX.Conditions import "
         "SimpleCSVTableProvider\n\np=ldmxcfg.Process('test')\np.testMode="
         "True\ncolumns=['SQRT','EXP','LOG']\ncop=SimpleCSVTableProvider."
@@ -234,7 +258,7 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
 
   
   SECTION( "Testing HTTP loading" ) {
-    const char* cfg="#!/usr/bin/python\n\nimport sys\n\nfrom LDMX.Framework "
+    const char* cfg="#!/usr/bin/python3\n\nimport sys\n\nfrom LDMX.Framework "
         "import ldmxcfg\nfrom LDMX.Conditions import SimpleCSVTableProvider\n"
         "p=ldmxcfg.Process(\"test\")\n"
         "p.testMode=True\n"
@@ -259,7 +283,7 @@ TEST_CASE("Conditions", "[Framework][Conditions]") {
 
   SECTION("Testing CSV metatable") {
     
-    const char* cfg="#!/usr/bin/python\n\nimport sys\n\nfrom LDMX.Framework "
+    const char* cfg="#!/usr/bin/python3\n\nimport sys\n\nfrom LDMX.Framework "
         "import ldmxcfg\nfrom LDMX.Conditions import SimpleCSVTableProvider\n"
         "p=ldmxcfg.Process(\"test\")\n"
         "p.testMode=True\n"
